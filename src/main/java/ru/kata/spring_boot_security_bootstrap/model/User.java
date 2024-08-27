@@ -95,11 +95,7 @@ public class User implements UserDetails {
     }
 
     public void setRoles(Set<Role> roles) {
-        if (this.roles == null) {
-            this.roles = roles;
-        } else {
-            this.roles.addAll(roles);
-        }
+        this.roles = roles;
     }
 
     public String getAge() {

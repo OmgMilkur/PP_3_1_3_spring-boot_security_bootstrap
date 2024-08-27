@@ -11,13 +11,13 @@ import ru.kata.spring_boot_security_bootstrap.model.User;
 import ru.kata.spring_boot_security_bootstrap.repository.RoleRepository;
 import ru.kata.spring_boot_security_bootstrap.repository.UserRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
@@ -39,28 +39,45 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+    @Transactional
     @Override
-    public void save(User user) {
+    public void save(User user, List<String> roleList) {
         Optional<User> userFromDB = userRepository.findByEmail(user.getEmail());
 
         if (userFromDB.isPresent() && user.equals(userFromDB.get())) {
             return;
         }
+        Set<Role> roles = new HashSet<>();
 
+        for (String role : roleList) {
+            roles.add(findRoleByName(role));
+        }
+
+        user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
+    @Transactional
     @Override
-    public void update(User user, String role) {
-        Role roleFromDB = findRoleByName(role);
+    public void update(User user, List<String> roleList) {
+        Set<Role> roles = new HashSet<>();
+
+        for (String roleName : roleList) {
+            roles.add(findRoleByName(roleName));
+        }
+
+        user.setRoles(roles);
         User userFromDB = findById(user.getId());
-        userFromDB.setRoles(Set.of(roleFromDB));
-        user.setRoles(userFromDB.getRoles());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userFromDB.getPassword().equals(user.getPassword())) {
+            user.setPassword(user.getPassword());
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         userRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void delete(Long userId) {
         if (userRepository.findById(userId).isPresent()) {
@@ -76,5 +93,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Role findRoleByName(String roleName) {
         return roleRepository.findByName(roleName);
+    }
+
+    @Override
+    public List<Role> findAllRoles() {
+        return roleRepository.findAll();
     }
 }

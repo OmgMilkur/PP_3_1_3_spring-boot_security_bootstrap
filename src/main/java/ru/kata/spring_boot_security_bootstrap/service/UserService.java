@@ -13,13 +13,15 @@ public interface UserService extends UserDetailsService {
 
     List<User> findAll();
 
-    void save(User user);
+    void save(User user, List<String> roleList);
 
-    void update(User user, String role);
+    void update(User user, List<String> roleList);
 
     void delete(Long userId);
 
     User findById(Long userId);
 
     Role findRoleByName(String roleName);
+
+    List<Role> findAllRoles();
 }

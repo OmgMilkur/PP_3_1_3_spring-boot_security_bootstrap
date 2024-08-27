@@ -5,11 +5,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring_boot_security_bootstrap.model.Role;
 import ru.kata.spring_boot_security_bootstrap.model.User;
 import ru.kata.spring_boot_security_bootstrap.service.UserService;
 
-import java.util.Set;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -43,17 +42,15 @@ public class AdminController {
     }
 
     @PostMapping("/new")
-    public String newUserPost(@ModelAttribute("user") User user, @RequestParam("role") String roleName) {
-        Role role = userService.findRoleByName(roleName);
-        user.setRoles(Set.of(role));
-        userService.save(user);
+    public String newUserPost(@ModelAttribute("user") User user, @RequestParam("role") List<String> roleList) {
+        userService.save(user, roleList);
         return "redirect:/admin";
     }
 
 
     @PatchMapping("/update")
-    public String update(@ModelAttribute("user") User user, @RequestParam("role") String roleName) {
-        userService.update(user, roleName);
+    public String update(@ModelAttribute("user") User user, @RequestParam("role") List<String> roleList) {
+        userService.update(user, roleList);
         return "redirect:/admin";
     }
 }
